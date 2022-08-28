@@ -20,5 +20,5 @@ setup(
     name="pdfmask",
     packages=find_packages(include=["pdfmask"]),
     url="https://github.com/hiroshi-matsuda/pdfmask",
-    version='0.1.0',
+    version='0.1.1',
 )

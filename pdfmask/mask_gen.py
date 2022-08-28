@@ -7,11 +7,12 @@ from reportlab.lib.colors import white
 
 
 USAGE = """Usage:
+
   pdfmask_gen output_pdf_path pagesize margin-left margin-right margin-top margin-bottom [mask-color-red mask-color-green mask-color-blue]
 
-    pagesize     A4 or letter
-    margin-*     float value in millimeter
-    mask-color-* float value from 0.0 to 1.0 (default=1.0)
+    pagesize        A4 or letter
+    margin-*        Float value in millimeter
+    mask-color-*    Float value from 0.0 to 1.0 (default=1.0)
 """
 
 PAGESIZES = {"a4": A4, "letter": letter}

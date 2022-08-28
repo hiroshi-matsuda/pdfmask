@@ -39,10 +39,15 @@ $ pdfmask mask-A4-20_20_30_30.pdf some_paper.pdf
 ### Usage
 
 ```
-pdfmask mask-pdf-path target-pdf-path1 [target-pdf-path2 [...]]
+pdfmask [--never-repeat] mask-pdf-path target-pdf-path1 [target-pdf-path2 [...]]
+
+    --never-repeat  Aligning pages with mask-pdf and target-pdf
 ```
 
-The masked output files will be placed in the same directory of target-pdf-path and have the suffix `.masked.pdf`
+The masked output files will be placed in the same directory of target-pdf-path and have the suffix `.masked.pdf`.
+
+To specify a mask-pdf file with multiple pages, use the `--never-repeat` option.
+This is useful for adding headers, footers, and page numbers.
 
 ## License and Dependencies
 
@@ -56,6 +61,10 @@ The masked output files will be placed in the same directory of target-pdf-path 
 ## Change Logs
 
 ### v0.1
+
+#### v0.1.1
+- 2022.08.28
+- Add `--never-repeat` option to `pdfmask`
 
 #### v0.1.0
 - 2022.08.28
