@@ -36,6 +36,12 @@ pdfmask_gen output-mask-pdf-path pagesize margin-left margin-right margin-top ma
 $ pdfmask mask-A4-20_20_30_30.pdf some_paper.pdf
 ```
 
+For adding headers / footers / page numbers:
+
+```console
+$ pdfmask --never-repeat footers.pdf src/*.pdf
+```
+
 ### Usage
 
 ```
