@@ -7,7 +7,8 @@ setup(
     description="A command line tool for masking the content area in PDF",
     entry_points={
         "console_scripts": [
-            "pdfmask = pdfmask.mask:main",
+            "pdflaminate = pdfmask.mask:main_laminate",
+            "pdfmask = pdfmask.mask:main_mask",
             "pdfmask_gen = pdfmask.mask_gen:main",
         ],
     },
@@ -20,5 +21,5 @@ setup(
     name="pdfmask",
     packages=find_packages(include=["pdfmask"]),
     url="https://github.com/hiroshi-matsuda/pdfmask",
-    version='0.1.1',
+    version='0.2.0',
 )

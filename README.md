@@ -27,33 +27,56 @@ pdfmask_gen output-mask-pdf-path pagesize margin-left margin-right margin-top ma
 - `mask-color-*`
   - float value from 0.0 to 1.0 (default=1.0)
 
-
 ## Apply mask to target PDF files
 
 ### Example
 
 ```console
-$ pdfmask mask-A4-20_20_30_30.pdf some_paper.pdf
-```
+$ pdfmask mask-A4-20_20_30_30.pdf ./papers/*.pdf
 
-For adding headers / footers / page numbers:
-
-```console
-$ pdfmask --never-repeat footers.pdf src/*.pdf
+./papers/A1-1.pdf      5 page(s)       succeeded
+./papers/A1-2.pdf      5 page(s)       succeeded
+./papers/A1-3.pdf      6 page(s)       failed Incompatible page size: page#1=(297.058, 209.916), mask#1=(210.013, 297.019)
+./papers/A1-4.pdf      6 page(s)       succeeded
 ```
 
 ### Usage
 
 ```
-pdfmask [--never-repeat] mask-pdf-path target-pdf-path1 [target-pdf-path2 [...]]
+pdfmask [-d output_dir] mask-pdf-path target-pdf-path1 [target-pdf-path2 [...]]
 
-    --never-repeat  Aligning pages with mask-pdf and target-pdf
+    -d output_dir Use output_dir for saving masked PDF files
 ```
 
-The masked output files will be placed in the same directory of target-pdf-path and have the suffix `.masked.pdf`.
+If `-d` option not specified, the masked output files will be placed in the same directory of target-pdf-path and have the suffix `.masked.pdf`.
 
-To specify a mask-pdf file with multiple pages, use the `--never-repeat` option.
-This is useful for adding headers, footers, and page numbers.
+## Laminate pages in PDF files
+
+`pdflaminate` is useful for adding headers, footers, and page numbers.
+
+### Example
+
+```console
+$ pdflaminate -d dist/ header_footer_pages.pdf ./papers/*.pdf
+
+./papers/A1-1.pdf      5 page(s)       succeeded
+./papers/A1-2.pdf      5 page(s)       succeeded
+./papers/A1-3.pdf      6 page(s)       failed Incompatible page size: page#1=(297.058, 209.916), mask#1=(210.013, 297.019)
+./papers/A1-4.pdf      6 page(s)       succeeded
+```
+
+### Usage
+
+```
+pdflaminate [-d output_dir] header-footer-pages-pdf-path target-pdf-path1 [target-pdf-path2 [...]]
+
+    -d  Use output_dir for saving laminated PDF files
+```
+
+`header-footer-pages-pdf` is supposed to have the page namubers and to be laminated with individually created PDF files.
+
+If `-d` option not specified, the laminated output files will be placed in the same directory of target-pdf-path and have the suffix `.laminated.pdf`.
+
 
 ## License and Dependencies
 
@@ -65,6 +88,14 @@ This is useful for adding headers, footers, and page numbers.
   - See https://raw.githubusercontent.com/py-pdf/PyPDF2/main/LICENSE
 
 ## Change Logs
+
+### v0.2
+
+#### v0.2.0
+- 2022.08.29
+- Add `pdflaminate` command
+- Add page size checking
+- Drop `--never-repeat` option
 
 ### v0.1
 

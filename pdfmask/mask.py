@@ -1,14 +1,30 @@
+from decimal import Decimal
+import os
 import sys
 
 from PyPDF2 import PdfFileWriter, PdfFileReader
 
 
-USAGE = """Usage:
+USAGE_PDFMASK = """Usage:
 
-  pdfmask [--never-repeat] mask-pdf-path target-pdf-path1 [target-pdf-path2 [...]]
+  pdfmask [-d output_dir] mask-pdf-path target-pdf-path1 [target-pdf-path2 [...]]
 
-    --never-repeat  Aligning pages with mask-pdf and target-pdf
+    -d output_dir Use output_dir for saving masked PDF files
 """
+
+USAGE_PDFLAMINATE = """Usage:
+
+  pdflaminate [-d output_dir] header-footer-pages-pdf-path target-pdf-path1 [target-pdf-path2 [...]]
+
+    -d  Use output_dir for saving laminated PDF files
+"""
+
+MM = Decimal(0.3528)
+MAX_SIZE_DIFF = Decimal(1)
+
+
+def validate_sizes(page_width, page_height, mask_width, mask_height):
+    return abs(page_width - mask_width) * MM <= MAX_SIZE_DIFF and abs(page_height - mask_height) * MM <= MAX_SIZE_DIFF
 
 
 def mask_all_pages(masking_pdf, masking_page, never_repeat, source_pdf):
@@ -20,7 +36,12 @@ def mask_all_pages(masking_pdf, masking_page, never_repeat, source_pdf):
         if masking_page == masking_num_pages:
             return None, masking_num_pages
         page = source_pdf.getPage(p)
-        page.mergePage(masking_pdf.getPage(masking_page))
+        mask = masking_pdf.getPage(masking_page)
+        page_size = page.mediaBox
+        mask_size = mask.mediaBox
+        if not validate_sizes(page_size.getWidth(), page_size.getHeight(), mask_size.getWidth(), mask_size.getHeight()):
+            raise Exception(f"Incompatible page size: page#{p + 1}=({page_size.getWidth() * MM:.3f}, {page_size.getHeight() * MM:.3f}), mask#{masking_page + 1}=({mask_size.getWidth() * MM:.3f}, {mask_size.getHeight() * MM:.3f})")
+        page.mergePage(mask)
         output_pdf.addPage(page)
         masking_page += 1
         if masking_page == masking_num_pages:
@@ -29,17 +50,19 @@ def mask_all_pages(masking_pdf, masking_page, never_repeat, source_pdf):
     return output_pdf, masking_page
 
 
-def main():
-    if len(sys.argv) >= 4 and sys.argv[1] == "--never-repeat":
-        never_repeat = True
-        mask_pdf_path = sys.argv[2]
-        source_pdf_paths = sys.argv[3:]
-    elif len(sys.argv) >= 3 and sys.argv[1] != "--never-repeat":
-        never_repeat = False
+def exec(suffix, never_repeat, usage):
+    if len(sys.argv) >= 5 and sys.argv[1] == "-d":
+        suffix = None
+        output_dir = sys.argv[2]
+        os.makedirs(output_dir, exist_ok=True)
+        mask_pdf_path = sys.argv[3]
+        source_pdf_paths = sys.argv[4:]
+    elif len(sys.argv) >= 3 and sys.argv[1] != "-d":
+        output_dir = None
         mask_pdf_path = sys.argv[1]
         source_pdf_paths = sys.argv[2:]
     else:
-        print(USAGE)
+        print(usage)
         sys.exit(1)
         return
     masking_pdf = PdfFileReader(open(mask_pdf_path, "rb"))
@@ -58,10 +81,13 @@ def main():
                 print(f"Error: verify {mask_pdf_path}")
                 sys.exit(1)
                 return
-            if source_pdf_path[-4:].lower() == ".pdf":
-                output_path = source_pdf_path[:-4] + ".masked.pdf"
+            if output_dir is not None:
+                p = source_pdf_path.replace("\\", "/").split("/")
+                output_path = f"{output_dir}/{p[-1]}"
+            elif source_pdf_path[-4:].lower() == ".pdf":
+                output_path = source_pdf_path[:-4] + suffix
             else:
-                output_path = source_pdf_path + ".masked.pdf"
+                output_path = source_pdf_path + suffix
             with open(output_path, "wb") as out:
                 output_pdf.write(out)
             print("succeeded")
@@ -69,5 +95,13 @@ def main():
             print("failed", e, sep="\t") 
 
 
+def main_mask():
+    exec(suffix=".masked.pdf", never_repeat=False, usage=USAGE_PDFMASK)
+
+
+def main_laminate():
+    exec(suffix=".laminated.pdf", never_repeat=True, usage=USAGE_PDFLAMINATE)
+
+
 if __name__ == "__main__":
-    main()
+    main_mask()
